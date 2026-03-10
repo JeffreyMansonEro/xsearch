@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "WebSearch",
+      "WebFetch(domain:docs.x.ai)",
+      "WebFetch(domain:help.apiyi.com)",
+      "WebFetch(domain:platform.openai.com)",
+      "WebFetch(domain:latenode.com)",
+      "Bash(npx create-next-app@latest:*)",
+      "Bash(printf:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run dev:*)",
+      "Bash(taskkill:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(tasklist:*)",
+      "Bash(wmic:*)",
+      "Bash(powershell:*)"
+    ]
+  }
+}

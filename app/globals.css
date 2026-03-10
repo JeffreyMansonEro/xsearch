@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card-bg: #ffffff;
+  --card-border: #e2e8f0;
+  --primary: #1d9bf0;
+  --primary-hover: #1a8cd8;
+  --danger: #ef4444;
+  --danger-hover: #dc2626;
+  --muted: #64748b;
+  --input-bg: #f1f5f9;
+  --input-border: #cbd5e1;
+  --tag-bg: #e0f2fe;
+  --tag-text: #0369a1;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0f172a;
+    --foreground: #f1f5f9;
+    --card-bg: #1e293b;
+    --card-border: #334155;
+    --primary: #1d9bf0;
+    --primary-hover: #38bdf8;
+    --danger: #ef4444;
+    --danger-hover: #f87171;
+    --muted: #94a3b8;
+    --input-bg: #1e293b;
+    --input-border: #475569;
+    --tag-bg: #0c4a6e;
+    --tag-text: #7dd3fc;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card-bg: var(--card-bg);
+  --color-card-border: var(--card-border);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-danger: var(--danger);
+  --color-danger-hover: var(--danger-hover);
+  --color-muted: var(--muted);
+  --color-input-bg: var(--input-bg);
+  --color-input-border: var(--input-border);
+  --color-tag-bg: var(--tag-bg);
+  --color-tag-text: var(--tag-text);
+  --font-sans: "Geist", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
