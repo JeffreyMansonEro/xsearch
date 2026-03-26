@@ -409,7 +409,7 @@
             
             const timerRef = useRef(null);
 
-            const [theme, setTheme] = useState("orange");
+            const [theme, setTheme] = useState("dark");
             
             useEffect(() => {
                 const saved = localStorage.getItem(STORAGE_KEY);
@@ -418,7 +418,7 @@
                     setApiKey(parsed.apiKey || "");
                     setGroups(parsed.groups || []);
                 }
-                const savedTheme = localStorage.getItem("xsearch_theme") || "orange";
+                const savedTheme = localStorage.getItem("xsearch_theme") || "dark";
                 setTheme(savedTheme);
                 
                 const now = new Date();
