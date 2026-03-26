@@ -14,18 +14,19 @@
                 extend: {
                     colors: {
                         primary: {
-                            DEFAULT: '#f37021', /* より濃いオレンジ */
-                            hover: '#d65a12',
+                            DEFAULT: 'rgb(var(--primary-rgb) / <alpha-value>)',
+                            hover: 'rgb(var(--primary-hover-rgb) / <alpha-value>)',
                         },
                         card: {
-                            bg: '#ffffff',
-                            border: '#f1f5f9',
+                            bg: 'var(--card-bg)',
+                            border: 'var(--card-border)',
                         },
-                        muted: '#64748b',
+                        foreground: 'var(--foreground)',
+                        muted: 'rgb(var(--muted-rgb) / <alpha-value>)',
                         danger: '#ef4444',
                         tag: {
-                            bg: '#fff4ed',
-                            text: '#c2410c',
+                            bg: 'var(--tag-bg)',
+                            text: 'var(--tag-text)',
                         }
                     }
                 }
@@ -41,10 +42,54 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap');
-        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; background-color: #f9fafb; color: #111827; }
+        
+        :root {
+            /* Orange Theme (Default) */
+            --primary-rgb: 243 112 33;
+            --primary-hover-rgb: 214 90 18;
+            --bg-color: #f9fafb;
+            --card-bg: #ffffff;
+            --card-border: #f1f5f9;
+            --foreground: #111827;
+            --muted-rgb: 100 116 139;
+            --tag-bg: #fff4ed;
+            --tag-text: #c2410c;
+        }
+
+        [data-theme='dark'] {
+            /* Dark Theme */
+            --primary-rgb: 56 189 248;
+            --primary-hover-rgb: 14 165 233;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --card-border: #334155;
+            --foreground: #f8fafc;
+            --muted-rgb: 148 163 184;
+            --tag-bg: #0c4a6e;
+            --tag-text: #7dd3fc;
+        }
+
+        body { 
+            font-family: 'Inter', 'Noto Sans JP', sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--foreground); 
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
         .backdrop-blur-md { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
         input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; }
         input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+        
+        /* Dark mode specific overrides for inputs */
+        [data-theme='dark'] input, [data-theme='dark'] select, [data-theme='dark'] textarea {
+            background-color: #1e293b !important;
+            border-color: #334155 !important;
+            color: #f8fafc !important;
+        }
+        [data-theme='dark'] input::placeholder { color: #64748b; }
+        [data-theme='dark'] .dark-avatar-bg { background-color: #334155 !important; }
+
+        /* Step guide icons */
+        .step-label { color: var(--foreground); opacity: 0.9; }
     </style>
 </head>
 <body>
@@ -61,7 +106,7 @@
 
         // --- Components ---
 
-        function Header({ manualLink }) {
+        function Header({ manualLink, theme, onThemeToggle }) {
             return (
                 <header className="sticky top-0 z-10 border-b border-card-border bg-card-bg/80 backdrop-blur-md">
                     <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
@@ -71,20 +116,39 @@
                             </svg>
                             <div>
                                 <h1 className="text-lg font-bold leading-none">xSearch</h1>
-                                <span className="text-[10px] text-muted uppercase tracking-wider">X Post Search Tool</span>
+                                <span className="text-[10px] text-muted uppercase tracking-wider font-medium">X Post Search Tool</span>
                             </div>
                         </div>
-                        <a
-                            href={manualLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-4 py-2 text-xs font-bold text-primary transition-all hover:bg-primary/20 active:scale-95"
-                        >
-                            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.168.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                            </svg>
-                            操作マニュアル
-                        </a>
+
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={onThemeToggle}
+                                className="flex h-9 items-center gap-2 rounded-lg border border-card-border bg-card-bg px-3 text-[11px] font-bold text-foreground hover:border-primary transition-all active:scale-95 shadow-sm"
+                            >
+                                {theme === 'orange' ? (
+                                    <>
+                                        <span className="h-2 w-2 rounded-full bg-primary" />
+                                        <span>ダーク版に切替</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                                        <span>オレンジ版に切替</span>
+                                    </>
+                                )}
+                            </button>
+                            <a
+                                href={manualLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 rounded-lg bg-primary text-white px-4 py-2 text-xs font-bold hover:bg-primary-hover transition-all active:scale-95 shadow-md"
+                            >
+                                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.168.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                </svg>
+                                マニュアル
+                            </a>
+                        </div>
                     </div>
                 </header>
             );
@@ -189,7 +253,7 @@
                                     placeholder="アカウント追加..."
                                     className="flex-1 rounded-lg border border-input-border px-3 py-2 text-sm"
                                 />
-                                <button onClick={handleAddHandle} className="rounded-lg bg-gray-100 border border-gray-200 px-3 py-2 text-xs font-bold">追加</button>
+                                <button onClick={handleAddHandle} className="rounded-lg bg-card-bg border border-card-border text-foreground px-3 py-2 text-xs font-bold">追加</button>
                             </div>
                         </div>
                     )}
@@ -201,15 +265,15 @@
             return (
                 <div className="space-y-4 animate-pulse">
                     {[1, 2, 3].map(i => (
-                        <div key={i} className="p-4 bg-white border border-card-border rounded-xl shadow-sm">
+                        <div key={i} className="p-4 bg-card-bg border border-card-border rounded-xl shadow-sm">
                             <div className="flex items-center gap-2 mb-4">
-                                <div className="h-8 w-8 rounded-full bg-gray-200" />
-                                <div className="h-3 w-24 bg-gray-200 rounded" />
-                                <div className="h-2 w-16 bg-gray-100 rounded ml-auto" />
+                                <div className="h-8 w-8 rounded-full bg-muted/20" />
+                                <div className="h-3 w-24 bg-muted/20 rounded" />
+                                <div className="h-2 w-16 bg-muted/10 rounded ml-auto" />
                             </div>
                             <div className="space-y-2">
-                                <div className="h-3 w-full bg-gray-100 rounded" />
-                                <div className="h-3 w-5/6 bg-gray-100 rounded" />
+                                <div className="h-3 w-full bg-muted/10 rounded" />
+                                <div className="h-3 w-5/6 bg-muted/10 rounded" />
                             </div>
                         </div>
                     ))}
@@ -242,10 +306,10 @@
 
             return (
                 <div className="space-y-4">
-                    <div className="flex justify-between items-center bg-white p-3 rounded-xl border border-card-border shadow-sm">
+                    <div className="flex justify-between items-center bg-card-bg p-3 rounded-xl border border-card-border shadow-sm">
                         <div className="flex items-center gap-2">
                             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white italic">i</span>
-                            <span className="text-sm font-bold text-gray-700">{posts.length}件の投稿が見つかりました</span>
+                            <span className="text-sm font-bold text-foreground opacity-90">{posts.length}件の投稿が見つかりました</span>
                         </div>
                         {!loading && (
                             <button onClick={onCsv} className="inline-flex items-center gap-1.5 rounded-lg bg-primary text-white px-4 py-2 text-xs font-bold hover:bg-primary-hover shadow-sm transition-all active:scale-95">
@@ -256,9 +320,9 @@
 
                     <div className="space-y-4">
                         {currentPosts.map((post, i) => (
-                            <div key={startIndex + i} className="p-5 bg-white border border-card-border rounded-xl shadow-sm hover:border-primary/30 transition-all">
+                            <div key={startIndex + i} className="p-5 bg-card-bg border border-card-border rounded-xl shadow-sm hover:border-primary/30 transition-all">
                                 <div className="flex items-center gap-2 mb-3">
-                                    <div className="relative h-9 w-9 overflow-hidden rounded-full bg-gray-100 flex-shrink-0 border border-gray-100">
+                                    <div className="relative h-9 w-9 overflow-hidden rounded-full bg-gray-100 dark-avatar-bg flex-shrink-0 border border-card-border">
                                         <img 
                                             src={`https://unavatar.io/x/${post.handle}`} 
                                             className="h-full w-full object-cover"
@@ -267,16 +331,16 @@
                                                 if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
                                             }}
                                         />
-                                        <div className="hidden h-full w-full items-center justify-center font-bold text-[10px] text-primary bg-gray-100">
+                                        <div className="hidden h-full w-full items-center justify-center font-bold text-[10px] text-primary bg-gray-100 dark-avatar-bg">
                                             {post.handle[0].toUpperCase()}
                                         </div>
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="font-bold text-sm">@{post.handle}</span>
+                                        <span className="font-bold text-sm text-foreground">@{post.handle}</span>
                                         <span className="text-[10px] text-muted">{post.date} {post.time}</span>
                                     </div>
                                 </div>
-                                <p className="text-sm prose prose-sm max-w-none whitespace-pre-wrap leading-relaxed text-gray-800">{post.text}</p>
+                                <p className="text-sm prose prose-sm max-w-none whitespace-pre-wrap leading-relaxed text-foreground opacity-90">{post.text}</p>
                                 {post.images && post.images.length > 0 && (
                                     <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
                                         {post.images.map((img, idx) => (
@@ -345,6 +409,8 @@
             
             const timerRef = useRef(null);
 
+            const [theme, setTheme] = useState("orange");
+            
             useEffect(() => {
                 const saved = localStorage.getItem(STORAGE_KEY);
                 if (saved) {
@@ -352,6 +418,9 @@
                     setApiKey(parsed.apiKey || "");
                     setGroups(parsed.groups || []);
                 }
+                const savedTheme = localStorage.getItem("xsearch_theme") || "orange";
+                setTheme(savedTheme);
+                
                 const now = new Date();
                 const from = new Date();
                 from.setDate(now.getDate() - 7);
@@ -362,6 +431,15 @@
             useEffect(() => {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify({ apiKey, groups }));
             }, [apiKey, groups]);
+
+            useEffect(() => {
+                document.body.setAttribute('data-theme', theme);
+                localStorage.setItem("xsearch_theme", theme);
+            }, [theme]);
+
+            const toggleTheme = () => {
+                setTheme(prev => prev === 'orange' ? 'dark' : 'orange');
+            };
 
             const handleSearch = async () => {
                 setLoading(true);
@@ -482,8 +560,12 @@ If you find no posts, say "投稿が見つかりませんでした。"`;
             };
 
             return (
-                <div className="min-h-screen pb-12">
-                    <Header manualLink="https://docs.google.com/spreadsheets/d/1l4quTPIuMpP3UBRRWc3FZ-zUxfQ3QxEVitL7CRi55sw/edit?usp=sharing" />
+                <div className="min-h-screen pb-12 transition-colors">
+                    <Header 
+                        manualLink="https://docs.google.com/spreadsheets/d/1l4quTPIuMpP3UBRRWc3FZ-zUxfQ3QxEVitL7CRi55sw/edit?usp=sharing" 
+                        theme={theme}
+                        onThemeToggle={toggleTheme}
+                    />
                     <main className="mx-auto max-w-5xl px-4 py-6">
                         <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
                             <div className="space-y-4">
