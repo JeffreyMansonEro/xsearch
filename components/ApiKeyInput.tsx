@@ -20,7 +20,7 @@ export default function ApiKeyInput({ apiKey, onApiKeyChange }: Props) {
           rel="noopener noreferrer" 
           className="text-[10px] text-primary hover:underline font-medium"
         >
-          キーを取得する &nearr;
+          キーを取得する ↗
         </a>
       </div>
       <div className="flex gap-2">

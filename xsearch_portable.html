@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xSearch - ポータブル版</title>
+    <!-- Tailwind CSS (Play CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            DEFAULT: '#1d9bf0',
+                            hover: '#1a8cd8',
+                        },
+                        card: {
+                            bg: '#ffffff',
+                            border: '#e5e7eb',
+                        },
+                        muted: '#6b7280',
+                        danger: '#f4212e',
+                        tag: {
+                            bg: '#eff3f4',
+                            text: '#0f1419',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap');
+        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; background-color: #f9fafb; color: #111827; }
+        .backdrop-blur-md { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; }
+        input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // --- Types & Constants ---
+        const STORAGE_KEY = "xsearch_settings_portable";
+
+        // --- Utils ---
+        const generateId = () => crypto.randomUUID();
+
+        // --- Components ---
+
+        function Header({ manualLink }) {
+            return (
+                <header className="sticky top-0 z-10 border-b border-card-border bg-card-bg/80 backdrop-blur-md">
+                    <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
+                        <div className="flex items-center gap-3">
+                            <svg className="h-6 w-6 text-primary" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                            </svg>
+                            <div>
+                                <h1 className="text-lg font-bold leading-none">xSearch</h1>
+                                <span className="text-[10px] text-muted uppercase tracking-wider">X Post Search Tool</span>
+                            </div>
+                        </div>
+                        <a
+                            href={manualLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-4 py-2 text-xs font-bold text-primary transition-all hover:bg-primary/20 active:scale-95"
+                        >
+                            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.168.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                            操作マニュアル
+                        </a>
+                    </div>
+                </header>
+            );
+        }
+
+        function ApiKeyInput({ apiKey, onApiKeyChange }) {
+            const [visible, setVisible] = useState(false);
+            return (
+                <div className="rounded-xl border border-card-border bg-card-bg p-4 flex flex-col gap-3">
+                    <div className="flex items-center justify-between">
+                        <label className="text-sm font-bold text-foreground">STEP 1: APIキー設定</label>
+                        <a href="https://console.x.ai/" target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary hover:underline font-medium">キーを取得する ↗</a>
+                    </div>
+                    <div className="flex gap-2">
+                        <div className="relative flex-1">
+                            <input
+                                type={visible ? "text" : "password"}
+                                value={apiKey}
+                                onChange={(e) => onApiKeyChange(e.target.value)}
+                                placeholder="xai-..."
+                                className="w-full rounded-lg border border-input-border bg-white px-3 py-2.5 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                            />
+                        </div>
+                        <button onClick={() => setVisible(!visible)} className="rounded-lg border border-input-border px-3 py-2 text-xs font-medium text-muted hover:bg-gray-50 transition-colors">
+                            {visible ? "隠す" : "表示"}
+                        </button>
+                    </div>
+                    <p className="text-[10px] text-muted leading-relaxed">※キーはブラウザにのみ安全に保存されます。</p>
+                </div>
+            );
+        }
+
+        function AccountGroupManager({ groups, selectedGroupId, onGroupsChange, onSelectGroup, onActiveHandlesChange }) {
+            const [newGroupName, setNewGroupName] = useState("");
+            const [handleInput, setHandleInput] = useState("");
+            const [error, setError] = useState("");
+            const selectedGroup = groups.find(g => g.id === selectedGroupId);
+
+            const handleCreate = () => {
+                if (!newGroupName.trim()) return;
+                const newGroup = { id: generateId(), name: newGroupName.trim(), handles: [] };
+                onGroupsChange([...groups, newGroup]);
+                onSelectGroup(newGroup.id);
+                setNewGroupName("");
+            };
+
+            const handleAddHandle = () => {
+                const cleaned = handleInput.replace(/^@/, "").trim();
+                if (!cleaned) return;
+                if (selectedGroup.handles.includes(cleaned)) return;
+                const updated = groups.map(g => g.id === selectedGroupId ? { ...g, handles: [...g.handles, cleaned] } : g);
+                onGroupsChange(updated);
+                onActiveHandlesChange([...selectedGroup.handles, cleaned]);
+                setHandleInput("");
+            };
+
+            return (
+                <div className="rounded-xl border border-card-border bg-card-bg p-4 flex flex-col gap-3">
+                    <label className="text-sm font-bold text-foreground">STEP 2: 検索対象の選択</label>
+                    <select
+                        value={selectedGroupId || ""}
+                        onChange={(e) => {
+                            const id = e.target.value;
+                            onSelectGroup(id || null);
+                            const g = groups.find(x => x.id === id);
+                            onActiveHandlesChange(g ? g.handles : []);
+                        }}
+                        className="w-full rounded-lg border border-input-border bg-white px-3 py-2.5 text-sm outline-none focus:border-primary shadow-sm"
+                    >
+                        <option value="">▼ グループを選んでください</option>
+                        {groups.map(g => <option key={g.id} value={g.id}>{g.name} ({g.handles.length}件)</option>)}
+                    </select>
+                    <div className="flex gap-2">
+                        <input
+                            type="text"
+                            value={newGroupName}
+                            onChange={(e) => setNewGroupName(e.target.value)}
+                            placeholder="新規グループ名..."
+                            className="flex-1 rounded-lg border border-input-border px-3 py-2 text-sm"
+                        />
+                        <button onClick={handleCreate} disabled={!newGroupName.trim()} className="rounded-lg bg-primary px-3 py-2 text-xs font-bold text-white disabled:opacity-50">作成</button>
+                    </div>
+                    {selectedGroup && (
+                        <div className="mt-2 border-t pt-3">
+                            <div className="flex flex-wrap gap-2 mb-3">
+                                {selectedGroup.handles.map(h => (
+                                    <span key={h} className="inline-flex items-center gap-1 rounded-full bg-tag-bg px-2.5 py-0.5 text-[10px] font-bold text-tag-text">
+                                        @{h}
+                                        <button onClick={() => {
+                                            const updated = groups.map(g => g.id === selectedGroupId ? { ...g, handles: g.handles.filter(x => x !== h) } : g);
+                                            onGroupsChange(updated);
+                                            onActiveHandlesChange(selectedGroup.handles.filter(x => x !== h));
+                                        }}>&times;</button>
+                                    </span>
+                                ))}
+                            </div>
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={handleInput}
+                                    onChange={(e) => setHandleInput(e.target.value)}
+                                    placeholder="アカウント追加..."
+                                    className="flex-1 rounded-lg border border-input-border px-3 py-2 text-sm"
+                                />
+                                <button onClick={handleAddHandle} className="rounded-lg bg-gray-100 border border-gray-200 px-3 py-2 text-xs font-bold">追加</button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        function ResultsDisplay({ posts, loading, error, onCsv }) {
+            if (error) return <div className="p-4 bg-danger/10 text-danger rounded-xl border border-danger/20 text-sm font-bold">{error}</div>;
+            if (loading && posts.length === 0) return <div className="p-8 text-center text-muted animate-pulse">検索中...</div>;
+            if (posts.length === 0) return (
+                <div className="rounded-xl border border-dashed border-card-border p-12 text-center">
+                    <p className="text-sm text-muted">アカウントを選択して検索ボタンを押してください</p>
+                </div>
+            );
+
+            return (
+                <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                        <span className="text-sm font-bold text-muted">{posts.length}件の投稿が見つかりました</span>
+                        {!loading && (
+                            <button onClick={onCsv} className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 border border-primary/20 px-3 py-1.5 text-xs font-bold text-primary hover:bg-primary/20">
+                                📑 CSVを保存する
+                            </button>
+                        )}
+                    </div>
+                    {posts.map((post, i) => (
+                        <div key={i} className="p-4 bg-white border border-card-border rounded-xl shadow-sm hover:border-primary/30 transition-all">
+                            <div className="flex items-center gap-2 mb-2">
+                                <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center font-bold text-xs text-primary">@{post.handle[0].toUpperCase()}</div>
+                                <span className="font-bold text-sm">@{post.handle}</span>
+                                <span className="text-[10px] text-muted">{post.date} {post.time}</span>
+                            </div>
+                            <p className="text-sm whitespace-pre-wrap leading-relaxed">{post.text}</p>
+                            {post.url && <a href={post.url} target="_blank" className="mt-2 block text-xs text-primary font-bold hover:underline">投稿を表示 &rarr;</a>}
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+
+        function App() {
+            const [apiKey, setApiKey] = useState("");
+            const [groups, setGroups] = useState([]);
+            const [selectedGroupId, setSelectedGroupId] = useState(null);
+            const [activeHandles, setActiveHandles] = useState([]);
+            const [fromDate, setFromDate] = useState("");
+            const [toDate, setToDate] = useState("");
+            const [loading, setLoading] = useState(false);
+            const [posts, setPosts] = useState([]);
+            const [error, setError] = useState(null);
+
+            useEffect(() => {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    setApiKey(parsed.apiKey || "");
+                    setGroups(parsed.groups || []);
+                }
+                const now = new Date();
+                const from = new Date();
+                from.setDate(now.getDate() - 7);
+                setToDate(now.toISOString().split('T')[0]);
+                setFromDate(from.toISOString().split('T')[0]);
+            }, []);
+
+            useEffect(() => {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({ apiKey, groups }));
+            }, [apiKey, groups]);
+
+            const handleSearch = async () => {
+                setLoading(true);
+                setError(null);
+                setPosts([]);
+
+                try {
+                    const handlesStr = activeHandles.map(h => `@${h}`).join(", ");
+                    const prompt = `Search for posts from ${handlesStr} between ${fromDate} and ${toDate}. List every post you find. For each post, use this exact format:
+---POST---
+handle: <handle without @>
+datetime: <YYYY-MM-DD HH:MM>
+text: <full post text>
+url: <post URL>
+---END---
+If you find no posts, say "投稿が見つかりませんでした。"`;
+
+                    const res = await fetch("https://api.x.ai/v1/responses", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${apiKey}`
+                        },
+                        body: JSON.stringify({
+                            model: "grok-4",
+                            stream: true,
+                            tools: [{
+                                type: "x_search",
+                                x_search: { allowed_x_handles: activeHandles, from_date: fromDate, to_date: toDate }
+                            }],
+                            input: prompt
+                        })
+                    });
+
+                    if (!res.ok) throw new Error(`APIエラー (${res.status}) - CORS設定またはキーを確認してください。`);
+
+                    const reader = res.body.getReader();
+                    const decoder = new TextDecoder();
+                    let fullText = "";
+                    let buffer = "";
+
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+                        buffer += decoder.decode(value);
+                        const lines = buffer.split("\n");
+                        buffer = lines.pop();
+
+                        for (const line of lines) {
+                            if (!line.startsWith("data: ")) continue;
+                            const dataStr = line.slice(6).trim();
+                            if (dataStr === "[DONE]") continue;
+                            const json = JSON.parse(dataStr);
+                            if (json.delta) fullText += json.delta;
+                            
+                            // Parse posts
+                            const found = [];
+                            const blocks = fullText.split("---POST---");
+                            for (const block of blocks) {
+                                const endIdx = block.indexOf("---END---");
+                                if (endIdx < 0) continue;
+                                const content = block.substring(0, endIdx);
+                                const h = content.match(/handle:\s*@?(\w+)/i);
+                                const dt = content.match(/datetime:\s*(\d{4}-\d{2}-\d{2})\s*(\d{2}:\d{2})?/i);
+                                const t = content.match(/text:\s*([\s\S]*?)(?=\nurl:|\n---END---|$)/i);
+                                const u = content.match(/url:\s*(https?:\/\/[^\s\n]+)/i);
+                                if (h && t) found.push({ handle: h[1], date: dt ? dt[1] : "", time: dt && dt[2] ? dt[2] : "", text: t[1].trim(), url: u ? u[1] : "" });
+                            }
+                            setPosts(found);
+                        }
+                    }
+                } catch (e) {
+                    setError(e.message);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const exportCsv = () => {
+                const BOM = "\uFEFF";
+                let csv = BOM + "アカウント,日付,時刻,本文,URL\r\n";
+                posts.forEach(p => {
+                    const txt = p.text.replace(/"/g, '""').replace(/\n/g, ' ');
+                    csv += `@${p.handle},${p.date},${p.time},"${txt}",${p.url}\r\n`;
+                });
+                const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `xsearch_portable_${new Date().toISOString().split('T')[0]}.csv`;
+                a.click();
+            };
+
+            return (
+                <div className="min-h-screen pb-12">
+                    <Header manualLink="https://docs.google.com/spreadsheets/d/1l4quTPIuMpP3UBRRWc3FZ-zUxfQ3QxEVitL7CRi55sw/edit?usp=sharing" />
+                    <main className="mx-auto max-w-5xl px-4 py-6">
+                        <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
+                            <div className="space-y-4">
+                                <ApiKeyInput apiKey={apiKey} onApiKeyChange={setApiKey} />
+                                <AccountGroupManager 
+                                    groups={groups} 
+                                    selectedGroupId={selectedGroupId} 
+                                    onGroupsChange={setGroups} 
+                                    onSelectGroup={setSelectedGroupId}
+                                    onActiveHandlesChange={setActiveHandles}
+                                />
+                                <div className="rounded-xl border border-card-border bg-card-bg p-4 flex flex-col gap-3">
+                                    <label className="text-sm font-bold text-foreground">STEP 3: 期間指定</label>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <input type="date" value={fromDate} onChange={e => setFromDate(e.target.value)} className="w-full rounded-lg border border-input-border p-2 text-xs" />
+                                        <input type="date" value={toDate} onChange={e => setToDate(e.target.value)} className="w-full rounded-lg border border-input-border p-2 text-xs" />
+                                    </div>
+                                </div>
+                                <div className="rounded-xl border border-card-border bg-card-bg p-4 flex flex-col gap-3">
+                                    <label className="text-sm font-bold text-foreground">STEP 4: 実行</label>
+                                    <button 
+                                        onClick={handleSearch} 
+                                        disabled={!apiKey || activeHandles.length === 0 || loading} 
+                                        className="w-full bg-primary hover:bg-primary-hover text-white font-bold py-3.5 rounded-lg shadow-lg active:scale-95 transition-all disabled:opacity-30"
+                                    >
+                                        {loading ? "検索中..." : "検索を開始する"}
+                                    </button>
+                                </div>
+                                <div className="p-4 bg-orange-50 border border-orange-200 rounded-xl">
+                                    <p className="text-[10px] text-orange-700 leading-relaxed font-bold">
+                                        ⚠️ 注意: ブラウザのセキュリティ設定により、直接検索がブロックされる場合があります。その場合はマニュアルを参照してください。
+                                    </p>
+                                </div>
+                            </div>
+                            <div>
+                                <ResultsDisplay posts={posts} loading={loading} error={error} onCsv={exportCsv} />
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
