@@ -1,19 +1,19 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
+  --background: #ffffff; /* 白ベース */
   --foreground: #0f172a;
   --card-bg: #ffffff;
-  --card-border: #e2e8f0;
-  --primary: #1d9bf0;
-  --primary-hover: #1a8cd8;
+  --card-border: #f1f5f9;
+  --primary: #ff7300; /* 恒志堂オレンジ */
+  --primary-hover: #e66800;
   --danger: #ef4444;
   --danger-hover: #dc2626;
   --muted: #64748b;
-  --input-bg: #f1f5f9;
-  --input-border: #cbd5e1;
-  --tag-bg: #e0f2fe;
-  --tag-text: #0369a1;
+  --input-bg: #f8fafc;
+  --input-border: #e2e8f0;
+  --tag-bg: #fff4ed; /* オレンジ系の薄い背景 */
+  --tag-text: #c2410c; /* オレンジ系の濃いテキスト */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,15 +22,15 @@
     --foreground: #f1f5f9;
     --card-bg: #1e293b;
     --card-border: #334155;
-    --primary: #1d9bf0;
-    --primary-hover: #38bdf8;
+    --primary: #ff7300;
+    --primary-hover: #ff8c33;
     --danger: #ef4444;
     --danger-hover: #f87171;
     --muted: #94a3b8;
     --input-bg: #1e293b;
     --input-border: #475569;
-    --tag-bg: #0c4a6e;
-    --tag-text: #7dd3fc;
+    --tag-bg: #431407;
+    --tag-text: #fdba74;
   }
 }
 

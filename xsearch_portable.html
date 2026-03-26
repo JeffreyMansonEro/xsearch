@@ -12,18 +12,18 @@
                 extend: {
                     colors: {
                         primary: {
-                            DEFAULT: '#1d9bf0',
-                            hover: '#1a8cd8',
+                            DEFAULT: '#ff7300', /* 恒志堂オレンジ */
+                            hover: '#e66800',
                         },
                         card: {
                             bg: '#ffffff',
-                            border: '#e5e7eb',
+                            border: '#f1f5f9',
                         },
-                        muted: '#6b7280',
-                        danger: '#f4212e',
+                        muted: '#64748b',
+                        danger: '#ef4444',
                         tag: {
-                            bg: '#eff3f4',
-                            text: '#0f1419',
+                            bg: '#fff4ed',
+                            text: '#c2410c',
                         }
                     }
                 }
@@ -381,14 +381,14 @@ If you find no posts, say "投稿が見つかりませんでした。"`;
                                         {loading ? "検索中..." : "検索を開始する"}
                                     </button>
                                 </div>
-                                <div className="p-4 bg-orange-50 border border-orange-200 rounded-xl space-y-2">
-                                    <p className="text-[11px] text-orange-800 font-bold flex items-center gap-1">
+                                <div className="p-4 bg-primary/5 border border-primary/20 rounded-xl space-y-2">
+                                    <p className="text-[11px] text-primary font-bold flex items-center gap-1">
                                         ⚠️ 検索ボタンでエラーが出る場合
                                     </p>
-                                    <p className="text-[10px] text-orange-700 leading-relaxed font-medium">
+                                    <p className="text-[10px] text-primary/80 leading-relaxed font-medium">
                                         ブラウザの制限により通信が遮断されています。以下のいずれかで解決します：
                                     </p>
-                                    <ul className="text-[10px] text-orange-700 list-disc ml-4 space-y-1 font-medium">
+                                    <ul className="text-[10px] text-primary/80 list-disc ml-4 space-y-1 font-medium">
                                         <li>Chrome拡張機能「Allow CORS」をインストールしてONにする</li>
                                         <li>または、配布フォルダ内の「<b>xsearch起動.bat</b>」をダブルクリックして使用する</li>
                                     </ul>
