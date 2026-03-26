@@ -239,7 +239,13 @@
                             {post.images && post.images.length > 0 && (
                                 <div className="mt-3 flex flex-wrap gap-2">
                                     {post.images.map((img, idx) => (
-                                        <img key={idx} src={img} className="max-h-64 rounded-lg border border-gray-100 object-contain shadow-sm" alt="添付画像" />
+                                        <img 
+                                            key={idx} 
+                                            src={img} 
+                                            className="max-h-64 rounded-lg border border-gray-100 object-contain shadow-sm" 
+                                            alt="添付画像" 
+                                            onError={(e) => e.target.style.display='none'}
+                                        />
                                     ))}
                                 </div>
                             )}
@@ -286,12 +292,14 @@
 
                 try {
                     const handlesStr = activeHandles.map(h => `@${h}`).join(", ");
-                    const prompt = `Search for posts from ${handlesStr} between ${fromDate} and ${toDate}. List every post you find. For each post, use this exact format:
+                    const prompt = `Search for posts from ${handlesStr} between ${fromDate} and ${toDate}. 
+IMPORTANT: List EVERY post you find, including text-only posts and posts with images. Do not skip any posts.
+For each post, use this exact format:
 ---POST---
 handle: <handle without @>
 datetime: <YYYY-MM-DD HH:MM>
 text: <full post text>
-images: <comma-separated list of image URLs attached to the post, or blank if none>
+images: <comma-separated DIRECT image file URLs (e.g. from pbs.twimg.com), or leave BLANK if no images>
 url: <post URL>
 ---END---
 If you find no posts, say "投稿が見つかりませんでした。"`;
@@ -349,7 +357,10 @@ If you find no posts, say "投稿が見つかりませんでした。"`;
                                  
                                  let imageList = [];
                                  if (imgMatch && imgMatch[1].trim()) {
-                                     imageList = imgMatch[1].split(',').map(s => s.trim().replace(/^\[|\]$/g, ''));
+                                     // より頑健なクリーンアップ: カンマで分割し、ブラケット、引用符、空白を除去
+                                     imageList = imgMatch[1].split(',')
+                                         .map(s => s.trim().replace(/[\[\]'"]/g, ''))
+                                         .filter(s => s.startsWith('http'));
                                  }
 
                                  if (h && t) found.push({ 
