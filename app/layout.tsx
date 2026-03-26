@@ -10,8 +10,8 @@ const geistSans = Geist({
 export const metadata: Metadata = {
   title: "xSearch - X投稿検索ツール",
   description: "xAI APIを使ってXの投稿を検索するツール",
-  icons: {
-    icon: "/icon.png",
+    icons: {
+    icon: "/icon.webp",
   },
 };
 
