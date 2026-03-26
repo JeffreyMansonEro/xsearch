@@ -345,7 +345,7 @@ If you find no posts, say "投稿が見つかりませんでした。"`;
                                  const dt = content.match(/datetime:\s*(\d{4}-\d{2}-\d{2})\s*(\d{2}:\d{2})?/i);
                                  const t = content.match(/text:\s*([\s\S]*?)(?=\nimages:|\nurl:|\n---END---|$)/i);
                                  const imgMatch = content.match(/images:\s*([^\n]*)/i);
-                                 const u = content.match(/url:\s*(https?://[^\s\n]+)/i);
+                                 const u = content.match(/url:\s*(https?:\/\/[^\s\n]+)/i);
                                  
                                  let imageList = [];
                                  if (imgMatch && imgMatch[1].trim()) {
