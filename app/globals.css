@@ -1,19 +1,19 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff; /* 白ベース */
+  --background: #ffffff;
   --foreground: #0f172a;
   --card-bg: #ffffff;
   --card-border: #f1f5f9;
-  --primary: #ff7300; /* 恒志堂オレンジ */
-  --primary-hover: #e66800;
+  --primary: #f37021; /* より濃く鮮やかなオレンジ（恒志堂ブランドカラー） */
+  --primary-hover: #d65a12;
   --danger: #ef4444;
   --danger-hover: #dc2626;
   --muted: #64748b;
   --input-bg: #f8fafc;
   --input-border: #e2e8f0;
-  --tag-bg: #fff4ed; /* オレンジ系の薄い背景 */
-  --tag-text: #c2410c; /* オレンジ系の濃いテキスト */
+  --tag-bg: #fff4ed;
+  --tag-text: #c2410c;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,7 +22,7 @@
     --foreground: #f1f5f9;
     --card-bg: #1e293b;
     --card-border: #334155;
-    --primary: #ff7300;
+    --primary: #f37021;
     --primary-hover: #ff8c33;
     --danger: #ef4444;
     --danger-hover: #f87171;
