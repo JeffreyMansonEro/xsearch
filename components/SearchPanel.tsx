@@ -20,7 +20,8 @@ export default function SearchPanel({
   statusMessage,
 }: Props) {
   return (
-    <div className="rounded-xl border border-card-border bg-card-bg p-4">
+    <div className="rounded-xl border border-card-border bg-card-bg p-4 flex flex-col gap-3">
+      <label className="text-sm font-bold text-foreground">STEP 4: 実行</label>
       {loading ? (
         <div className="space-y-3">
           <div className="flex items-center gap-2 text-sm text-muted">
@@ -56,16 +57,16 @@ export default function SearchPanel({
         <button
           onClick={onSearch}
           disabled={disabled}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-3 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-3.5 text-sm font-bold text-white hover:bg-primary-hover disabled:opacity-30 disabled:grayscale transition-all shadow-lg shadow-primary/20 active:scale-[0.98]"
         >
           {cooldown > 0 ? (
-            <>待機中... {cooldown}秒</>
+            <>制限解除まで {cooldown}秒</>
           ) : (
             <>
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
-              検索
+              検索を開始する
             </>
           )}
         </button>

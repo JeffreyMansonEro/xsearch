@@ -134,9 +134,9 @@ export default function AccountGroupManager({
   }
 
   return (
-    <div className="rounded-xl border border-card-border bg-card-bg p-4">
-      <label className="mb-2 block text-sm font-medium">
-        アカウントグループ
+    <div className="rounded-xl border border-card-border bg-card-bg p-4 flex flex-col gap-3">
+      <label className="text-sm font-bold text-foreground">
+        STEP 2: 検索対象の選択
       </label>
 
       {/* Group selector */}
@@ -146,12 +146,12 @@ export default function AccountGroupManager({
           onChange={(e) =>
             e.target.value ? selectGroup(e.target.value) : onSelectGroup(null)
           }
-          className="flex-1 rounded-lg border border-input-border bg-input-bg px-3 py-2 text-sm outline-none focus:border-primary"
+          className="flex-1 rounded-lg border border-input-border bg-input-bg px-3 py-2.5 text-sm outline-none focus:border-primary shadow-sm"
         >
-          <option value="">グループを選択...</option>
+          <option value="">▼ グループを選んでください</option>
           {groups.map((g) => (
             <option key={g.id} value={g.id}>
-              {g.name} ({g.handles.length})
+              {g.name} ({g.handles.length}件)
             </option>
           ))}
         </select>

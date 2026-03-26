@@ -166,9 +166,12 @@ export default function ResultsDisplay({ result, streamingPosts, error, loading 
           {displayPosts.length > 0 && !loading && (
             <button
               onClick={() => exportCsv(displayPosts)}
-              className="rounded-lg border border-input-border px-2.5 py-1 text-xs text-muted hover:border-primary hover:text-primary"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 border border-primary/20 px-3 py-1.5 text-xs font-bold text-primary hover:bg-primary/20 transition-colors"
             >
-              CSV出力
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+              </svg>
+              CSVを保存する
             </button>
           )}
           {result && (

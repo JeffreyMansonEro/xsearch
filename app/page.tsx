@@ -196,13 +196,28 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
-      <header className="border-b border-card-border bg-card-bg">
-        <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-4">
-          <svg className="h-6 w-6 text-primary" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-          </svg>
-          <h1 className="text-lg font-bold">xSearch</h1>
-          <span className="text-xs text-muted">X投稿検索ツール</span>
+      <header className="sticky top-0 z-10 border-b border-card-border bg-card-bg/80 backdrop-blur-md">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-3">
+            <svg className="h-6 w-6 text-primary" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+            </svg>
+            <div>
+              <h1 className="text-lg font-bold leading-none">xSearch</h1>
+              <span className="text-[10px] text-muted uppercase tracking-wider">X Post Search Tool</span>
+            </div>
+          </div>
+          <a
+            href="https://docs.google.com/spreadsheets/d/1l4quTPIuMpP3UBRRWc3FZ-zUxfQ3QxEVitL7CRi55sw/edit?usp=sharing"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-4 py-2 text-xs font-bold text-primary transition-all hover:bg-primary/20 active:scale-95"
+          >
+            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.168.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+            操作マニュアル
+          </a>
         </div>
       </header>
 
@@ -218,12 +233,15 @@ export default function Home() {
               activeHandles={activeHandles}
               onActiveHandlesChange={setActiveHandles}
             />
-            <DateRangePicker
-              fromDate={fromDate}
-              toDate={toDate}
-              onFromDateChange={setFromDate}
-              onToDateChange={setToDate}
-            />
+            <div className="rounded-xl border border-card-border bg-card-bg p-4 flex flex-col gap-3">
+              <label className="text-sm font-bold text-foreground">STEP 3: 期間指定</label>
+              <DateRangePicker
+                fromDate={fromDate}
+                toDate={toDate}
+                onFromDateChange={setFromDate}
+                onToDateChange={setToDate}
+              />
+            </div>
             <SearchPanel
               onSearch={handleSearch}
               onCancel={handleCancel}
