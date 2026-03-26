@@ -236,7 +236,53 @@
                                 <span className="text-[10px] text-muted">{post.date} {post.time}</span>
                             </div>
                             <p className="text-sm whitespace-pre-wrap leading-relaxed">{post.text}</p>
-                            );
+                            {post.images && post.images.length > 0 && (
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                    {post.images.map((img, idx) => (
+                                        <img 
+                                            key={idx} 
+                                            src={img} 
+                                            className="max-h-64 rounded-lg border border-gray-100 object-contain shadow-sm" 
+                                            alt="添付画像" 
+                                            onError={(e) => e.target.style.display='none'}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                            {post.url && <a href={post.url} target="_blank" className="mt-2 block text-xs text-primary font-bold hover:underline">投稿を表示 &rarr;</a>}
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+
+        function App() {
+            const [apiKey, setApiKey] = useState("");
+            const [groups, setGroups] = useState([]);
+            const [selectedGroupId, setSelectedGroupId] = useState(null);
+            const [activeHandles, setActiveHandles] = useState([]);
+            const [fromDate, setFromDate] = useState("");
+            const [toDate, setToDate] = useState("");
+            const [loading, setLoading] = useState(false);
+            const [posts, setPosts] = useState([]);
+            const [error, setError] = useState(null);
+
+            useEffect(() => {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    setApiKey(parsed.apiKey || "");
+                    setGroups(parsed.groups || []);
+                }
+                const now = new Date();
+                const from = new Date();
+                from.setDate(now.getDate() - 7);
+                setToDate(now.toISOString().split('T')[0]);
+                setFromDate(from.toISOString().split('T')[0]);
+            }, []);
+
+            useEffect(() => {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({ apiKey, groups }));
             }, [apiKey, groups]);
 
             const handleSearch = async () => {
@@ -246,11 +292,14 @@
 
                 try {
                     const handlesStr = activeHandles.map(h => `@${h}`).join(", ");
-                    const prompt = `Search for posts from ${handlesStr} between ${fromDate} and ${toDate}. List every post you find. For each post, use this exact format:
+                    const prompt = `Search for posts from ${handlesStr} between ${fromDate} and ${toDate}. 
+IMPORTANT: List EVERY post you find, including text-only posts and posts with images. Do not skip any posts.
+For each post, use this exact format:
 ---POST---
 handle: <handle without @>
 datetime: <YYYY-MM-DD HH:MM>
 text: <full post text>
+images: <comma-separated DIRECT image file URLs (e.g. from pbs.twimg.com), or leave BLANK if no images>
 url: <post URL>
 ---END---
 If you find no posts, say "投稿が見つかりませんでした。"`;
@@ -302,9 +351,26 @@ If you find no posts, say "投稿が見つかりませんでした。"`;
                                 const content = block.substring(0, endIdx);
                                                                  const h = content.match(/handle:\s*@?(\w+)/i);
                                  const dt = content.match(/datetime:\s*(\d{4}-\d{2}-\d{2})\s*(\d{2}:\d{2})?/i);
-                                 const t = content.match(/text:\s*([\s\S]*?)(?=\nurl:|\n---END---|$)/i);
+                                 const t = content.match(/text:\s*([\s\S]*?)(?=\nimages:|\nurl:|\n---END---|$)/i);
+                                 const imgMatch = content.match(/images:\s*([^\n]*)/i);
                                  const u = content.match(/url:\s*(https?:\/\/[^\s\n]+)/i);
-                                 if (h && t) found.push({ handle: h[1], date: dt ? dt[1] : "", time: dt && dt[2] ? dt[2] : "", text: t[1].trim(), url: u ? u[1] : "" });
+                                 
+                                 let imageList = [];
+                                 if (imgMatch && imgMatch[1].trim()) {
+                                     // より頑健なクリーンアップ: カンマで分割し、ブラケット、引用符、空白を除去
+                                     imageList = imgMatch[1].split(',')
+                                         .map(s => s.trim().replace(/[\[\]'"]/g, ''))
+                                         .filter(s => s.startsWith('http'));
+                                 }
+
+                                 if (h && t) found.push({ 
+                                     handle: h[1], 
+                                     date: dt ? dt[1] : "", 
+                                     time: dt && dt[2] ? dt[2] : "", 
+                                     text: t[1].trim(), 
+                                     images: imageList,
+                                     url: u ? u[1] : "" 
+                                 });
                             }
                             setPosts(found);
                         }
